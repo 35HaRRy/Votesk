@@ -1,5 +1,5 @@
 
-
+from Tools import *
 
 class Dispatcher(object):
 
@@ -7,5 +7,12 @@ class Dispatcher(object):
         self.task = task
 
     def dispatch(self):
+        result = "unsuccessful"
 
-        return True
+        if self.task == "close":
+            result = self.task
+        else:
+            result = "successful"
+
+        log(result)
+        return result
