@@ -1,7 +1,10 @@
 
+    mod = __import__("datetime")
+    func = getattr(getattr(mod, "datetime"), "now")
+
     while True:
-            taskText = self.toText(self.listen())
-            if taskText == "start listening":
+            taskTextText = self.toText(self.listen())
+            if taskTextText == "start listening":
                 counter = 0
                 while counter != 3:
                     dispatcher = Dispatcher(self.toText(self.listen()))

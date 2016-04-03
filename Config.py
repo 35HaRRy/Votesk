@@ -1,0 +1,4 @@
+
+config = {
+    "Mode": "Debug"
+}
