@@ -1,7 +1,6 @@
 
-import sys, getopt, datetime
+import sys, getopt, datetime, re
 
-from Tasks import *
 from Config import *
 
 def log(text):

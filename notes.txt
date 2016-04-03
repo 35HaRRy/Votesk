@@ -2,13 +2,27 @@
     mod = __import__("datetime")
     func = getattr(getattr(mod, "datetime"), "now")
 
-    while True:
-            taskTextText = self.toText(self.listen())
-            if taskTextText == "start listening":
-                counter = 0
-                while counter != 3:
-                    dispatcher = Dispatcher(self.toText(self.listen()))
-                    if dispatcher.dispatch() == "unsuccessful":
-                        counter += 1
-                    elif dispatcher.dispatch() == "close":
-                        sys.exit()
+    temptaskText = self.taskText.lower()
+        for synonym in synonyms:
+            for key, values in synonym.iteritems():
+                for value in values:
+                    temptaskText = temptaskText.replace(value, key)
+
+        matchTextToComponents(tasks, temptaskText, self.intent)
+        for task in tasks:
+            p = re.compile(task["RegularExpression"])
+            matches = p.match(temptaskText)
+
+            if not matches == None:
+                matches = matches.groups()
+
+                assert len(matches) >= len(filter(lambda x: x["IsRequired"], task["SentenceComponents"])), "Need all required components"
+
+                for i in range(0, len(task["SentenceComponents"]), 1):
+                    component = task["SentenceComponents"][i]
+
+                    self.intent[component["Name"]] = ""
+                    if i < len(matches):
+                        self.intent[component["Name"]] = matches[i]
+
+                self.intent["Task"] = task

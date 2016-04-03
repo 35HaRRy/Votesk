@@ -1,14 +1,5 @@
 
-standartSentenceComponents = [{
-    "Name": "Attendant",
-    "IsRequired": True
-},{
-    "Name": "Verb",
-    "IsRequired": True
-},{
-    "Name": "Objects",
-    "IsRequired": False
-}]
+from TaskPacks import *
 
 tasks = [{
     "Title": "Stop background listener",
@@ -22,9 +13,27 @@ tasks = [{
     "SentenceComponents": standartSentenceComponents
 }]
 
-attendants = ["kodi", "pi"]
-verbs = ["play", "search", "next", "stop"]
+def matchTextToComponents(text, pairs):
+    for synonym in synonyms:
+        for key, values in synonym.iteritems():
+            for value in values:
+                text = text.replace(value, key)
 
-synonyms = [{
-    "kodi": ["cody"]
-}]
+    for pair in pairs:
+        p = re.compile(pair["RegularExpression"])
+        matches = p.match(text)
+
+        if not matches == None:
+            matches = matches.groups()
+
+            assert len(matches) >= len(filter(lambda x: x["IsRequired"], pair["SentenceComponents"])), "Need all required components"
+
+            for i in range(0, len(pair["SentenceComponents"]), 1):
+                component = pair["SentenceComponents"][i]
+
+                pair[component["Name"]] = ""
+                if i < len(matches):
+                    pair[component["Name"]] = matches[i]
+            break
+
+    return pair
