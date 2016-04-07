@@ -9,7 +9,6 @@ def log(text):
         print("{0}: {1}".format(datetime.datetime.now(), text))
 
 def parseKeyValue(key, value):
-    tempValue = json.loads(value)
     keys = key.split("-")
 
     if not "errors" in value:
