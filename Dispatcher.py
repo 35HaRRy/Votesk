@@ -10,15 +10,15 @@ class Dispatcher(object):
     def dispatch(self):
         result = "unsuccessful"
 
-        try:
-            self.intent = matchTextToComponents(self.taskText.lower(), tasks)
-            if "IntentMethod" in self.intent:
-                intentMethod = getattr(self, self.intent["IntentMethod"])
-                intentMethod()
+        # try:
+        self.intent = matchTextToComponents(self.taskText.lower(), tasks)
+        if "IntentMethod" in self.intent:
+            intentMethod = getattr(self, self.intent["IntentMethod"])
+            intentMethod()
 
-                result = "successful"
-        except StandardError as se:
-            log(se)
+            result = "successful"
+        # except StandardError as se:
+            # log("StandardError: {0}".format(se.message))
 
         log("Dispatch result is " + result)
         return result

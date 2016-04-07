@@ -12,7 +12,8 @@ taskPacks = [{
 }, {
     "Title": "Finder",
     "ExtractMethod": "findTask",
-    "RegularExpression": "find\s+(last|new|final)*([\w\d\s]*)",
+    # "RegularExpression": "find\s+(last|new|final)*([\w\d\s]*)",
+    "RegularExpression": "find\s+(\w*)([\w\d\s]*)",
     "SentenceComponents": [{
         "Name": "Order",
         "IsRequired": False
@@ -32,6 +33,8 @@ standartSentenceComponents = [{
     "Name": "Objects",
     "IsRequired": False
 }]
+
+currentControlTask = {"Verb": "current control", "Params": {"properties": ["currentcontrol"]}, "Rule": {"Count": 1}}
 
 synonyms = [{
     "kodi": ["cody"]
