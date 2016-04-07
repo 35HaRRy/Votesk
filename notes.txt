@@ -1,4 +1,13 @@
 
+        self.tasks.append(getKodiTask("up"))
+
+        if not self.taskComponents["Order"] is None:
+            self.tasks.append({"Verb": "select", "Params": {}, "Rule": {"Count": 1, "NotEqual": "result-currentcontrol-label-[..]", "Task": currentControlTask}})
+            for i in range(0, 2, 1):
+                self.tasks.append(getKodiTask("up"))
+                self.tasks.append(getKodiTask("select"))
+
+
     mod = __import__("datetime")
     func = getattr(getattr(mod, "datetime"), "now")
 

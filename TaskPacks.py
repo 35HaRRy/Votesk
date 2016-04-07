@@ -12,8 +12,8 @@ taskPacks = [{
 }, {
     "Title": "Finder",
     "ExtractMethod": "findTask",
-    # "RegularExpression": "find\s+(last|new|final)*([\w\d\s]*)",
-    "RegularExpression": "find\s+(\w*)([\w\d\s]*)",
+    "RegularExpression": "find\s+(last|new|final)*\s*([\w\d\s]*)",
+    # "RegularExpression": "find\s+(\w*)([\w\d\s]*)",
     "SentenceComponents": [{
         "Name": "Order",
         "IsRequired": False

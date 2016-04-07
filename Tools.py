@@ -1,6 +1,8 @@
 
 import sys, getopt, datetime, re, simplejson as json
 
+from copy import *
+
 from Config import *
 
 def log(text):
@@ -9,6 +11,7 @@ def log(text):
         print("{0}: {1}".format(datetime.datetime.now(), text))
 
 def parseKeyValue(key, value):
+    tempValue = deepcopy(value)
     keys = key.split("-")
 
     if not "errors" in value:

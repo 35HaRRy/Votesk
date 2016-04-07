@@ -1,4 +1,6 @@
 
+from copy import *
+
 apiDefaultTemplate = {
         "jsonrpc": "2.0",
          "method": "",
@@ -40,13 +42,15 @@ kodiTaskDefaultTemplate = {
 }
 
 def getKodiTask(verb, params = None, rule = None, ruleCount = 1):
-    kodiTaskDefaultTemplate["Verb"] = verb
+    tempTemplate = deepcopy(kodiTaskDefaultTemplate)
+
+    tempTemplate["Verb"] = verb
 
     if not params is None:
-        kodiTaskDefaultTemplate["Params"] = params
+        tempTemplate["Params"] = params
 
     if not rule is None:
-        kodiTaskDefaultTemplate["Rule"] = rule
-    kodiTaskDefaultTemplate["Rule"]["Count"] = ruleCount
+        tempTemplate["Rule"] = rule
+    tempTemplate["Rule"]["Count"] = ruleCount
 
-    return kodiTaskDefaultTemplate
+    return tempTemplate
