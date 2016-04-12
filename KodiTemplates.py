@@ -24,7 +24,7 @@ verbApiMethodParis = {
     "right": "Input.Right",
     "select": "Input.Select",
     "send text": "Input.SendText",
-    "ahow codec": "Input.ShowCodec",
+    "show codec": "Input.ShowCodec",
     "show osd": "Input.ShowOSD",
     "up": "Input.Up",
 
@@ -41,7 +41,7 @@ kodiTaskDefaultTemplate = {
     "Params": {}
 }
 
-def getKodiTask(verb, params = None, rule = None, ruleCount = 1):
+def getKodiTask(verb, params = None, rule = None, ruleCount = 1, useSleep = True):
     tempTemplate = deepcopy(kodiTaskDefaultTemplate)
 
     tempTemplate["Verb"] = verb
@@ -51,6 +51,17 @@ def getKodiTask(verb, params = None, rule = None, ruleCount = 1):
 
     if not rule is None:
         tempTemplate["Rule"] = rule
-    tempTemplate["Rule"]["Count"] = ruleCount
 
+    tempTemplate["Rule"]["Count"] = ruleCount
+    tempTemplate["Rule"]["UseSleep"] = useSleep
+
+    return tempTemplate
+
+currentControlTask = getKodiTask("current control", params= {"properties": ["currentcontrol"]}, useSleep= False)
+controlRuleTemplate = {"Count": 1, "UseSleep": False, "Task": currentControlTask}
+
+def getControlRuleTemplate(ruleType = "WhileNotEqual", label = "[..]"):
+    tempTemplate = deepcopy(controlRuleTemplate)
+
+    tempTemplate[ruleType] = "result-currentcontrol-label-" + label
     return tempTemplate
