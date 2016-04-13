@@ -28,15 +28,20 @@ class Kodi(object):
 
     def applyRule(self, task):
         for i in range(0, task["Rule"]["Count"], 1):
-            if "WhileNotEqual" in task["Rule"] or "WhileNotContain" in task["Rule"]:
+            if "WhileNotEqual" in task["Rule"] or "WhileNotContain" in task["Rule"] or "WhileEqual" in task["Rule"]:
                 whileRule = "WhileNotEqual"
                 if "WhileNotContain" in task["Rule"]:
                     whileRule = "WhileNotContain"
+                elif "WhileEqual" in task["Rule"]:
+                    whileRule = "WhileEqual"
 
                 taskResponse = parseKeyValue(task["Rule"][whileRule], self.applyTask(task["Rule"]["Task"]))
                 whileRuleValue = task["Rule"][whileRule].split("-")[-1].lower()
 
-                while not ((whileRule == "WhileNotEqual" and whileRuleValue == taskResponse.lower()) or (whileRule == "WhileNotContain" and whileRuleValue in taskResponse.lower())):
+                while not (("WhileNotEqual" in whileRule and whileRuleValue == taskResponse.lower())
+                            or ("WhileEqual" in whileRule and whileRuleValue != taskResponse.lower())
+                            or ("WhileNotContain" in whileRule and whileRuleValue in taskResponse.lower())
+                            or ("WhileContain" in whileRule and whileRuleValue not in taskResponse.lower())):
                     self.applyTask(task)
                     taskResponse = parseKeyValue(task["Rule"][whileRule], self.applyTask(task["Rule"]["Task"]))
             elif "NotEqual" in task["Rule"]:
@@ -56,12 +61,13 @@ class Kodi(object):
             kodiRequest["method"] = method
             kodiRequest["params"] = task["Params"]
 
-            if task["Verb"] == "send text":
-                test = "ediyorum"
-
             response = requests.post(config["KodiRemoteAddress"], data = str(kodiRequest).replace("'", "\""))
             response = json.loads(response.text)
-            log("Kodi single task ({0}) result: {1}".format(str(kodiRequest).replace("'", "\""), response))
+
+            log("Kodi single task: {0}".format(str(task).replace("'", "\"")))
+            log("Kodi single task request: {0}".format(str(kodiRequest).replace("'", "\"")))
+            log("Kodi single task response: {0}".format(response))
+            log(".........................................................................")
 
             if "error" in response:
                 raise Exception("Kodi gorevi hata ile sonanlandi. Error: {0}".format(response["error"]))
@@ -80,6 +86,7 @@ class Kodi(object):
             return response
         else:
             log("Kodi single task sleep: {0}".format(task["Params"]["Time"]))
+            log(".........................................................................")
             sleep(task["Params"]["Time"])
 
     def repeatTask(self):
@@ -93,7 +100,7 @@ class Kodi(object):
         self.tasks.append(getKodiTask("down", rule = getControlRuleTemplate(label= "[Search]"), useSleep= False))
         self.tasks.append(getKodiTask("select", rule = {"SleepRule": getControlRuleTemplate(label= "Tamam")}))
 
-        rule1 = {"SleepRule": getControlRuleTemplate(ruleType= "WhileNotContain", label= self.taskComponents["ItemName"])} # any textten farkli ?
+        rule1 = {"SleepRule": getControlRuleTemplate(ruleType= "WhileEqual", label= "")}
         self.tasks.append(getKodiTask("send text", params= {"text": self.taskComponents["ItemName"]}, rule= rule1))
 
         # self.tasks.append(getKodiTask("down"))
