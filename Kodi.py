@@ -43,8 +43,9 @@ class Kodi(object):
                 whileRuleValue = task["Rule"][whileRule].replace(currentControlLabelPrefix, "").replace(currentWindowLabelPrefix, "").lower()
 
                 controlCounter = 0
-                while not (("WhileNotEqual" in whileRule and whileRuleValue == taskResponse.lower()) or ("WhileEqual" in whileRule and whileRuleValue != taskResponse.lower())
-                            or ("WhileNotContain" in whileRule and whileRuleValue in taskResponse.lower()) or ("WhileContain" in whileRule and whileRuleValue not in taskResponse.lower())):
+                while (("WhileNotEqual" != whileRule or whileRuleValue != taskResponse.lower()) and ("WhileEqual" != whileRule or whileRuleValue == taskResponse.lower())
+                       and ("WhileNotContain" != whileRule or whileRuleValue not in taskResponse.lower()) and ("WhileContain" != whileRule or whileRuleValue in taskResponse.lower())
+                       or ("WhileKodiWorking" in task["Rule"] and taskResponse == "")):
                     self.applyTask(task)
                     taskResponse = parseKeyValue(task["Rule"][whileRule], self.applyTask(task["Rule"]["Task"]))
 
