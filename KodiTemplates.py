@@ -1,4 +1,6 @@
 
+from Tools import *
+
 from copy import *
 
 apiDefaultTemplate = {
@@ -41,7 +43,7 @@ kodiTaskDefaultTemplate = {
     "Params": {}
 }
 
-def getKodiTask(verb, params = None, rule = None, ruleCount = 1, useSleep = True):
+def getKodiTask(verb, params=None, rule=None, ruleCount=1, useSleep=True):
     tempTemplate = deepcopy(kodiTaskDefaultTemplate)
 
     tempTemplate["Verb"] = verb
@@ -57,11 +59,11 @@ def getKodiTask(verb, params = None, rule = None, ruleCount = 1, useSleep = True
 
     return tempTemplate
 
-currentControlTask = getKodiTask("current control", params= {"properties": ["currentcontrol"]}, useSleep= False)
+currentControlTask = getKodiTask("current control", params={"properties": ["currentcontrol", "currentwindow"]}, useSleep=False)
 controlRuleTemplate = {"Count": 1, "UseSleep": False, "Task": currentControlTask}
 
-def getControlRuleTemplate(ruleType = "WhileNotEqual", label = "[..]"):
+def getControlRule(ruleType="WhileNotEqual", labelPrefix=currentControlLabelPrefix, label="[..]"):
     tempTemplate = deepcopy(controlRuleTemplate)
 
-    tempTemplate[ruleType] = "result-currentcontrol-label-" + label
+    tempTemplate[ruleType] = labelPrefix + label
     return tempTemplate

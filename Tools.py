@@ -10,8 +10,13 @@ def log(text):
     if isPrinting:
         print("{0}: {1}".format(datetime.datetime.now(), text))
 
+currentControlLabelPrefix = "result-currentcontrol-label-"
+currentWindowLabelPrefix = "result-currentwindow-label-"
+
 def parseKeyValue(key, value):
     tempValue = deepcopy(value)
+
+    key = key.replace(key.replace(currentControlLabelPrefix, "").replace(currentWindowLabelPrefix, ""), "")
     keys = key.split("-")
 
     if not "errors" in value:

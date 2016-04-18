@@ -28,6 +28,10 @@ class Kodi(object):
 
     def applyRule(self, task):
         for i in range(0, task["Rule"]["Count"], 1):
+            if "WhileKodiWorking" in task["Rule"]:
+                task["Rule"]["WhileEqual"] = currentControlLabelPrefix + parseKeyValue(currentControlLabelPrefix, self.applyTask(currentControlTask))
+                # task["Rule"]["WhileEqual"] = currentWindowLabelPrefix
+
             if "WhileNotEqual" in task["Rule"] or "WhileNotContain" in task["Rule"] or "WhileEqual" in task["Rule"]:
                 whileRule = "WhileNotEqual"
                 if "WhileNotContain" in task["Rule"]:
@@ -36,14 +40,17 @@ class Kodi(object):
                     whileRule = "WhileEqual"
 
                 taskResponse = parseKeyValue(task["Rule"][whileRule], self.applyTask(task["Rule"]["Task"]))
-                whileRuleValue = task["Rule"][whileRule].split("-")[-1].lower()
+                whileRuleValue = task["Rule"][whileRule].replace(currentControlLabelPrefix, "").replace(currentWindowLabelPrefix, "").lower()
 
-                while not (("WhileNotEqual" in whileRule and whileRuleValue == taskResponse.lower())
-                            or ("WhileEqual" in whileRule and whileRuleValue != taskResponse.lower())
-                            or ("WhileNotContain" in whileRule and whileRuleValue in taskResponse.lower())
-                            or ("WhileContain" in whileRule and whileRuleValue not in taskResponse.lower())):
+                controlCounter = 0
+                while not (("WhileNotEqual" in whileRule and whileRuleValue == taskResponse.lower()) or ("WhileEqual" in whileRule and whileRuleValue != taskResponse.lower())
+                            or ("WhileNotContain" in whileRule and whileRuleValue in taskResponse.lower()) or ("WhileContain" in whileRule and whileRuleValue not in taskResponse.lower())):
                     self.applyTask(task)
                     taskResponse = parseKeyValue(task["Rule"][whileRule], self.applyTask(task["Rule"]["Task"]))
+
+                    controlCounter += 1
+                    if controlCounter == config["ControlCounter"]:
+                        raise StandardError("sorgu donguye girdigi icin sonlandirildi.")
             elif "NotEqual" in task["Rule"]:
                 taskResponse = parseKeyValue(task["Rule"]["NotEqual"], self.applyTask(task["Rule"]["Task"]))
                 if task["Rule"]["NotEqual"].split("-")[-1] == taskResponse:
@@ -61,7 +68,7 @@ class Kodi(object):
             kodiRequest["method"] = method
             kodiRequest["params"] = task["Params"]
 
-            response = requests.post(config["KodiRemoteAddress"], data = str(kodiRequest).replace("'", "\""))
+            response = requests.post(config["KodiRemoteAddress"], data=str(kodiRequest).replace("'", "\""))
             response = json.loads(response.text)
 
             log("Kodi single task: {0}".format(str(task).replace("'", "\"")))
@@ -77,11 +84,11 @@ class Kodi(object):
                 if "SleepTime" in task["Rule"]:
                     sleeptime = task["Rule"]["SleepTime"]
 
-                sleepRule = {"UseSleep": False}
+                sleepRule = None
                 if "SleepRule" in task["Rule"]:
                     sleepRule = task["Rule"]["SleepRule"]
 
-                self.applyRule(getKodiTask("sleep", params= {"Time": sleeptime}, rule= sleepRule))
+                self.applyRule(getKodiTask("sleep", params={"Time": sleeptime}, rule=sleepRule, useSleep=False))
 
             return response
         else:
@@ -91,27 +98,22 @@ class Kodi(object):
 
     def repeatTask(self):
         count = textToInteger(str(self.taskComponents["Counter"]))
-        self.tasks.append(getKodiTask(self.intent["Verb"], ruleCount = count))
+        self.tasks.append(getKodiTask(self.intent["Verb"], ruleCount=count))
 
     def findTask(self):
-        self.tasks.append(getKodiTask("open plugin", params = {"addonid": "plugin.video.icefilms"}))
-        # digerlerinde arama ? ve uygulamanin acilisina gitme
+        self.tasks.append(getKodiTask("open plugin", params={"addonid": "plugin.video.icefilms"})) # digerlerinde arama ? ve uygulamanin acilisina gitme
 
-        self.tasks.append(getKodiTask("down", rule = getControlRuleTemplate(label= "[Search]"), useSleep= False))
-        self.tasks.append(getKodiTask("select", rule = {"SleepRule": getControlRuleTemplate(label= "Tamam")}))
-
-        rule1 = {"SleepRule": getControlRuleTemplate(ruleType= "WhileEqual", label= "")}
-        self.tasks.append(getKodiTask("send text", params= {"text": self.taskComponents["ItemName"]}, rule= rule1))
-
-        # self.tasks.append(getKodiTask("down"))
+        self.tasks.append(getKodiTask("down", rule=getControlRule(label="[Search]"), useSleep=False))
+        self.tasks.append(getKodiTask("select", rule={"SleepRule": getControlRule(label="Done")}))
+        # rule1 = {"SleepRule": getControlRule(ruleType="WhileEqual", label="")}
+        self.tasks.append(getKodiTask("send text", params={"text": self.taskComponents["ItemName"]}, rule={"SleepRule": getControlRule(ruleType="WhileKodiWorking")}))
 
         if not self.taskComponents["Order"] is None:
-            self.tasks.append(getKodiTask("select", rule= rule1))
-            # self.tasks.append(getKodiTask("up"))
-
-            rule2 = {"SleepRule": getControlRuleTemplate(ruleType= "WhileNotContain", label= "season")}
-            self.tasks.append(getKodiTask("select", rule= rule2))
-
+            self.tasks.append(getKodiTask("down", rule=getControlRule(ruleType="WhileNotContain", label=self.taskComponents["ItemName"])))
+            self.tasks.append(getKodiTask("select", rule={"SleepRule": getControlRule(ruleType= "WhileKodiWorking")}))
+            self.tasks.append(getKodiTask("up", rule=getControlRule(ruleType="WhileNotContain")))
+            self.tasks.append(getKodiTask("up"))
+            self.tasks.append(getKodiTask("select", rule={"SleepRule": getControlRule(ruleType="WhileKodiWorking")}))
             self.tasks.append(getKodiTask("up"))
             self.tasks.append(getKodiTask("select"))
             
