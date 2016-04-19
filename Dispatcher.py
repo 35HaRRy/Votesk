@@ -10,15 +10,15 @@ class Dispatcher(object):
     def dispatch(self):
         result = "unsuccessful"
 
-        # try:
-        self.intent = matchTextToComponents(self.taskText.lower(), tasks)
-        if "IntentMethod" in self.intent:
-            intentMethod = getattr(self, self.intent["IntentMethod"])
-            intentMethod()
+        try:
+            self.intent = matchTextToComponents(self.taskText.lower(), tasks)
+            if "IntentMethod" in self.intent:
+                intentMethod = getattr(self, self.intent["IntentMethod"])
+                intentMethod()
 
-            result = "successful"
-        # except StandardError as se:
-            # log("StandardError: {0}".format(se.message))
+                result = "successful"
+        except StandardError as se:
+            log("StandardError: {0}".format(se))
 
         log("Dispatch result is " + result)
         return result
@@ -28,6 +28,7 @@ class Dispatcher(object):
             sys.exit()
 
     def workOnKodi(self):
+        log("Kodi calisti. Dispatcher intent: {0}".format(self.intent))
         log("Kodi calisti. Verb: {0}, Objects: {1}".format(self.intent["Verb"], self.intent["Objects"]))
 
         self.kodi = Kodi(self.intent)

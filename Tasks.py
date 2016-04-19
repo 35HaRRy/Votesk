@@ -14,6 +14,8 @@ tasks = [{
 }]
 
 def matchTextToComponents(text, pairs):
+    isMatched = False
+
     for synonym in synonyms:
         for key, values in synonym.iteritems():
             for value in values:
@@ -34,6 +36,10 @@ def matchTextToComponents(text, pairs):
                 pair[component["Name"]] = ""
                 if i < len(matches):
                     pair[component["Name"]] = matches[i]
+                    isMatched = True
             break
 
-    return pair
+    if isMatched == True:
+        return pair
+    else:
+        return {}

@@ -102,11 +102,10 @@ class Kodi(object):
         self.tasks.append(getKodiTask(self.intent["Verb"], ruleCount=count))
 
     def findTask(self):
-        self.tasks.append(getKodiTask("open plugin", params={"addonid": "plugin.video.icefilms"})) # digerlerinde arama ? ve uygulamanin acilisina gitme
+        self.tasks.append(getKodiTask("open plugin", params={"addonid": config["FindTaskAddOnId"]}))
 
         self.tasks.append(getKodiTask("down", rule=getControlRule(label="[Search]"), useSleep=False))
         self.tasks.append(getKodiTask("select", rule={"SleepRule": getControlRule(label="Done")}))
-        # rule1 = {"SleepRule": getControlRule(ruleType="WhileEqual", label="")}
         self.tasks.append(getKodiTask("send text", params={"text": self.taskComponents["ItemName"]}, rule={"SleepRule": getControlRule(ruleType="WhileKodiWorking")}))
 
         if not self.taskComponents["Order"] is None:

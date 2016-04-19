@@ -7,6 +7,7 @@ from Dispatcher import *
 class SpeechToText(object):
 
     def __init__(self, module=None):
+        self.module = module
         if not module:
             self.module = "wit.ai"
 
@@ -20,7 +21,8 @@ class SpeechToText(object):
         # start listening in the background (note that we don't have to do this inside a `with` statement)
         self.stop_listening = self.recognizer.listen_in_background(microPhone, self.callback)
 
-        while True: time.sleep(0.1)
+        while True:
+            time.sleep(0.1)
 
     def listen(self):
         with sr.Microphone() as source:
@@ -28,8 +30,9 @@ class SpeechToText(object):
             log("Say something!")
             try:
                 audio = self.recognizer.listen()
-            except StandardError:
+            except StandardError as se:
                 audio = None
+                log("Speech recognizer error: {0}".format(se))
 
         return audio
 
@@ -40,8 +43,8 @@ class SpeechToText(object):
         if dispatcher.dispatch() == "close":
             try:
                 self.stop_listening()
-            except StandardError:
-                pass
+            except StandardError as se:
+                log("callback error: {0}".format(se))
 
     def toText(self, audio):
         text = ""
@@ -52,7 +55,8 @@ class SpeechToText(object):
                 # for testing purposes, we're just using the default API key
                 # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
                 # instead of `r.recognize_google(audio)`
-                text = self.recognizer.recognize_google(audio, key = "AIzaSyAt6XMqNbCjAukkCOFhbITY0AqLvLjLI24")
+                # text = self.recognizer.recognize_google(audio, key = "AIzaSyAt6XMqNbCjAukkCOFhbITY0AqLvLjLI24")
+                text = self.recognizer.recognize_google(audio, key = "AIzaSyCbyjzYuzvAvXAg-4h1HeSj1LdPljCb4yc")
                 log("Google Speech Recognition thinks you said " + text)
             except sr.UnknownValueError:
                 log("Google Speech Recognition could not understand audio")
